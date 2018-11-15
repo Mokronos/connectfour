@@ -36,35 +36,186 @@ def legal(board,action,player):
         print("legal move")
         return 1
 def check_if_won(board):
-    for i 
-def update(board,action,player):
+    #vertically
+    for i in range(board.shape[0]):
+        c1=0
+        c2=0
+        for j in range(board.shape[1]):
+            if board[i,j]==1:
+                c1+=1
+                c2=0
+            if board[i,j]==2:
+                c1=0
+                c2+=1
+            if board[i,j]==0:
+                c1=0
+                c2=0
+            if c1==4:
+                print("player1 won")
+                return 1
+            if c2==4:
+                print("player2 won")
+                return 2
 
-    if legal(board,action,player)==0:
-        print("not a legal move")
-        return 0,board
+    #horizontally
+    for j in range(board.shape[1]):
+        c1=0
+        c2=0
+        for i in range(board.shape[0]):
+            if board[i,j]==1:
+                c1+=1
+                c2=0
+            if board[i,j]==2:
+                c1=0
+                c2+=1
+            if board[i,j]==0:
+                c1=0
+                c2=0
+            if c1==4:
+                print("player1 won")
+                return 1
+            if c2==4:
+                print("player2 won")
+                return 2
+
+    #diagonally_1
+    for i in range(board.shape[0]):
+        for j in range(board.shape[1]):
+            c1=0
+            c2=0
+            cx=j
+            cy=i
+            while 0<=cy<board.shape[0] and 0<=cx<board.shape[1]:
+                if board[cy,cx]==1:
+                    c1+=1
+                    c2=0
+                if board[cy,cx]==2:
+                    c1=0
+                    c2+=1
+                if board[cy,cx]==0:
+                    c1=0
+                    c2=0
+                if c1==4:
+                    print("player1 won")
+                    return 1
+                if c2==4:
+                    print("player2 won")
+                    return 2
+                cx+=1
+                cy+=1
+
+    #diagonally_2
+    for i in range(board.shape[0]):
+        for j in range(board.shape[1]):
+            c1=0
+            c2=0
+            cx=j
+            cy=i
+            while 0<=cy<board.shape[0] and 0<=cx<board.shape[1]:
+                if board[cy,cx]==1:
+                    c1+=1
+                    c2=0
+                if board[cy,cx]==2:
+                    c1=0
+                    c2+=1
+                if board[cy,cx]==0:
+                    c1=0
+                    c2=0
+                if c1==4:
+                    print("player1 won")
+                    return 1
+                if c2==4:
+                    print("player2 won")
+                    return 2
+                cx-=1
+                cy+=1
+       
+    return 0
+
+def move(board,action,player):
 
     for i in range(6):
         if board[i,action]!=0:
             board[i-1,action]=player
-            return 1,board
+            return board
     
     board[5,action]=player
-    return 1,board
-
-board=np.zeros((6,7))
-print(board)
+    return board
 
 
-print("hello")
 
-g,board=update(board,1,1)
-print(board)
+def update(board,action,player):
+
+    if legal(board,action,player)==0:
+        print("not a legal move")
+        return 0,0,board
+    
+    board=move(board,action,player)
+    
+    w=check_if_won(board)
+
+    #return win,legal,board
+    return w,1,board 
+def play():
+    board=np.zeros((6,7))
+    w=0
+    l=0
+    pc=0 #playercounter
+    player=1
+    print(board)
+    while(w==0):
+        action=input("player "+str(player)+", choose action 0-6:")
+        action=int(action)
+        w,l,board=update(board,action,player)
+        if l==1:
+            pc+=1
+            player=(pc%2)+1
+        print("action taken: "+str(action)+" by player: "+str(player))
+        print(board)
+    print("player "+str(w)+" won")
 
 
-g,board=update(board,1,2)
-print(board)
+
+play()
 
 
-g,board=update(board,1,2)
-print(board)
+
+
+#board=np.zeros((6,7))
+#print(board)
+#
+#
+#print("hello")
+#
+#w,l,board=update(board,6,1)
+#print(board)
+#
+#
+#w,l,board=update(board,0,2)
+#print(board)
+#
+#w,l,board=update(board,1,1)
+#print(board)
+#
+#w,l,board=update(board,1,2)
+#print(board)
+#
+#w,l,board=update(board,2,1)
+#print(board)
+#w,l,board=update(board,2,2)
+#print(board)
+#w,l,board=update(board,3,1)
+#print(board)
+#w,l,board=update(board,2,2)
+#print(board)
+#w,l,board=update(board,3,1)
+#print(board)
+#w,l,board=update(board,3,2)
+#print(board)
+#w,l,board=update(board,5,1)
+#print(board)
+#w,l,board=update(board,3,2)
+#print(board)
+#w,l,board=update(board,6,1)
+#print(board)
 
