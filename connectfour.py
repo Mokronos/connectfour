@@ -36,6 +36,7 @@ def legal(board,action,player):
         print("legal move")
         return 1
 def check_if_won(board):
+    
     #vertically
     for i in range(board.shape[0]):
         c1=0
@@ -129,8 +130,13 @@ def check_if_won(board):
                     return 2
                 cx-=1
                 cy+=1
-       
-    return 0
+    #check if board full(draw)
+    for i in range(board.shape[0]):
+        for j in range(board.shape[1]):
+            if board[i,j]==0:
+                return 0
+    print("draw due to full board and no winner")
+    return 3
 
 def move(board,action,player):
 
@@ -172,7 +178,12 @@ def play():
             player=(pc%2)+1
         print("action taken: "+str(action)+" by player: "+str(player))
         print(board)
-    print("player "+str(w)+" won")
+
+    if w==3:
+        print("draw - board is full")
+        
+    else:
+        print("player "+str(w)+" won")
 
 
 
