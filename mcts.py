@@ -1,7 +1,9 @@
 import numpy as np
+from random import *
 from connectfour import update
 dimensionx=7
 dimensiony=6
+action_space=7
 extra_data_per_state=2
 x=np.zeros((1,dimensiony*dimensionx+extra_data_per_state))
 x[0,x.size-3]=7
@@ -55,20 +57,50 @@ def value(data,state):
     return 0
 
 
+def collect_possible_childs(state,player):
+    childs=np.zeros((action_space,2))
+    for i in range(action_space):
+        next_state=update(state,i,player)[2]
+        childs[i,0]=visitcount(data,next_state)
+        childs[i,1]=value(data,next_state)
+    return childs
+
+def playout(state,player):
+    #w=3 ... 3 for game not finished/sync with update function
+    w=3
+    p=player
+    while w==3:
+        c=randint(0,action_space-1)
+        w,l,state=update(state,c,p)
+        if l==1:
+            p=(p%2)+1
+    
+    
+    if player==p:
+        return -w
+        
+    return w
 
 
-#def mcts(state):
-#   w,l, update
-#    return
+
+def mcts(state,player):
+    childs=collect_possible_childs(state,player)
+    
+
+    return
 
 
-initial_game_state=np.zeros((6,7))
 
+ini=np.zeros((6,7))
+print(playout(ini,1))
 
-
-data=np.zeros((1,initial_game_state.flatten().size+extra_data_per_state))
+data=np.zeros((1,ini.flatten().size+extra_data_per_state))
+print("childs")
+u=collect_possible_childs(ini,1)
+print(u)
+print(update(ini,1,1)[2])
 print(data)
-w,l,state1=update(initial_game_state,0,1)
+w,l,state1=update(ini,0,1)
 print("state1")
 state1x=state1.copy()
 print(state1)
@@ -86,13 +118,19 @@ print(data2)
 data3=data2
 data3[2,42]=7
 data3[1,42]=5
+data3[1,43]=2
+data3[2,43]=8
+
 print(state2)
 print("visits")
 print(visitcount(data3,state1x))
 print(visitcount(data3,state2))
-
+print(value(data3,state1x))
+print(value(data3,state2))
 print("break")
 g=np.delete(data2,[[42,43]],axis=1)
 print(g)
 print(data2.shape[0])
 print(data2[2,36])
+
+
