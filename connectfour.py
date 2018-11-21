@@ -151,17 +151,31 @@ def move(board,action,player):
 
 
 def update(board,action,player):
-
-    if legal(board,action,player)==0:
+    boardx=board.copy()
+    if legal(boardx,action,player)==0:
         print("not a legal move")
-        return 0,0,board
+        return 0,0,boardx
     
-    board=move(board,action,player)
-    
-    w=check_if_won(board)
+    boardx=move(boardx,action,player)
+    print(boardx) 
+    w1=check_if_won(boardx)
+    w=3
+    if w1==3:
+        w=0
+    elif player==1:
+        if w1==1:
+            w=1
+        elif w1==2:
+            w=-1
+    elif player==2:
+        if w1==2:
+            w=1
+        elif w1==1:
+            w=-1
+
 
     #return win,legal,board
-    return w,1,board 
+    return w,1,boardx 
 def play():
     board=np.zeros((6,7))
     w=0
@@ -169,7 +183,7 @@ def play():
     pc=0 #playercounter
     player=1
     print(board)
-    while(w==0):
+    while(w==3):
         action=input("player "+str(player)+", choose action 0-6:")
         action=int(action)
         w,l,board=update(board,action,player)
@@ -179,7 +193,7 @@ def play():
         print("action taken: "+str(action)+" by player: "+str(player))
         print(board)
 
-    if w==3:
+    if w==0:
         print("draw - board is full")
         
     else:
