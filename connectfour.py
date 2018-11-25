@@ -33,7 +33,7 @@ def legal(board,action,player):
         if (c1>c2) and (player==1):
             print("wrong player, it is player2's turn")
             return 0
-        print("legal move")
+#        print("legal move")
         return 1
 def check_if_won(board):
     
@@ -154,10 +154,10 @@ def update(board,action,player):
     boardx=board.copy()
     if legal(boardx,action,player)==0:
         print("not a legal move")
-        return 0,0,boardx
+        return 3,0,boardx
     
     boardx=move(boardx,action,player)
-    print(boardx) 
+#    print(boardx) 
     w1=check_if_won(boardx)
     w=3
     if w1==3:
