@@ -1,10 +1,16 @@
+
 import numpy as np
 from random import *
 from connectfour import update
+np.set_printoptions(threshold=np.nan)
 dimensionx=7
 dimensiony=6
-action_space=7
+backtrack=[[]]
 extra_data_per_state=2
+ini=np.zeros((6,7))
+data=np.zeros((1,ini.flatten().size+extra_data_per_state))
+f=0 #reset after every iteration .. to signal that this is first state
+action_space=7
 x=np.zeros((1,dimensiony*dimensionx+extra_data_per_state))
 x[0,x.size-3]=7
 x[0,x.size-2]=8
@@ -34,15 +40,23 @@ z=np.concatenate((x,board2))
 
 # add flattened state array + visit_count + value to data/memory
 def addState(data,state):
-    state=state.flatten()
+    state=s1D(state)
     state=np.append(state,[[0,0]])
     state=np.reshape(state,(1,state.size))
     data=np.concatenate((data,state))
     return data
 
+# add flattened state to backtrack data
+def addBacktrack(data,state):
+    state=s1D(state)
+    state=np.reshape(state,(1,state.size))
+    data=np.concatenate((data,state))
+    return data
+
+
 #returns visitcount for given state
 def visitcount(data,state):
-    state=state.flatten()
+    state=s1D(state)
     datax=np.delete(data,[[data.shape[1]-1,data.shape[1]-2]],axis=1)
     for i in range(datax.shape[0]):
         if((datax[i]==state).all()):
@@ -51,7 +65,7 @@ def visitcount(data,state):
 
 #returns value for given state
 def value(data,state):
-    state=state.flatten()
+    state=s1D(state)
     datax=np.delete(data,[[data.shape[1]-1,data.shape[1]-2]],axis=1)
     for i in range(datax.shape[0]):
         if((datax[i]==state).all()):
@@ -60,35 +74,40 @@ def value(data,state):
 
 #increases visitcount by 1 for given state in given data
 def up_visitcount(data,state):
-    state=state.flatten()
+    state=s1D(state)
     datax=np.delete(data,[[data.shape[1]-1,data.shape[1]-2]],axis=1)
     for i in range(datax.shape[0]):
         if((datax[i]==state).all()):
             data[i,data.shape[1]-2]+=1
     
-    return
+    return data
 #increases value by given value for given state in given data
 def up_value(data,state,value):
-    state=state.flatten()
+    state=s1D(state)
     datax=np.delete(data,[[data.shape[1]-1,data.shape[1]-2]],axis=1)
     for i in range(datax.shape[0]):
         if((datax[i]==state).all()):
             data[i,data.shape[1]-1]=data[i,data.shape[1]-1]+value
 
-    return
+    return data
 #returns 2*actions array with visits,values for each action(action following child)
-def collect_possible_childs(state,player):
+def collect_possible_childs(state,player,data):
+    
+    state=s2D(state)
     childs=np.zeros((action_space,state.size+2))
+    
     for i in range(action_space):
         next_state=update(state,i,player)[2]
         childs[i,0:state.size]=next_state.flatten()
         childs[i,childs.shape[1]-2]=visitcount(data,next_state)
         childs[i,childs.shape[1]-1]=value(data,next_state)
     return childs
+
 #plays out a game from given state with given player at random
 def playout(state,player):
     #w=3 ... 3 for game not finished/sync with update function
     w=3
+    state=s2D(state)
     p=player
     while w==3:
         c=randint(0,action_space-1)
@@ -96,93 +115,141 @@ def playout(state,player):
         if l==1:
             p=(p%2)+1
     
-    
+    #playout went from the child of the leaf and started with opposite player to the player of the leaf ... if winning player is player of leaf, the reward should be positive .. we change player twice (1. in call of function, 2. after w changed in while it gets changed 1 last time) so if the winning player == p .. pos reward
+
     if player==p:
-        return -w
+        return w
         
-    return w
+    return -w
 
 def check_if_leaf(state,player):
-    childs=collect_possible_childs(state,player)
-    
-    unvisited=np.empty(1)
+
+    childs=collect_possible_childs(state,player,data)
+    unvisited=np.empty(0)
     for i in range(action_space):
-        if childs[i,childs.shape1[1]-2]==0:
-            np.append(unvisited,i)
+        if childs[i,childs.shape[1]-2]==0:
+            unvisited=np.append(unvisited,i)
+    
+    return unvisited
+
+def backprop(backtrack,data,value):
+
+    
+
+    for i in range(backtrack.shape[0]):
+        data=up_visitcount(data,backtrack[i])
+        
+        for j in range(data.shape[0]):
+            if all(backtrack[i,0:backtrack.shape[1]] == data[j,0:data.shape[1]-2]):
+               data=up_value(data,backtrack[i],value)
+
+    return data
+
+#transform state to 2D array
+def s2D(state):
+
+    if len(state.shape)==2:
+        return state
+    elif len(state.shape)==1:
+        state=np.reshape(state,(-1,dimensionx))
+        return state
+
+#transform state to 1D array
+def s1D(state):
+
+    if len(state.shape)==1:
+        return state
+    elif len(state.shape)==2:
+        state=state.flatten()
+        return state
 
 
-def mcts(state,player):
+
+
+def change_value_sign(data):
+    for i in range(data.shape[0]):
+        data[i,data.shape[1]-1]=-data[i,data.shape[1]-1]
+    return data
+
+def get_best_child(childs):
+    utc=np.zeros(childs.shape[0])
+    for i in range(childs.shape[0]):
+        utc[i]=childs[i,childs.shape[1]-1]/childs[i,childs.shape[1]-2]
+    max_utc=np.argmax(utc)
+    print("max_utc:")
+    print(max_utc)
+    return childs[max_utc,0:childs.shape[1]-2]
+
+
+def mcts(data,state,player,backtrack):
     
     #selection: select best states according to policy(rewards/visits) until state has 1 or more unvisited children
     #expand: select 1 random unvisited child and add it to tree with 0 value, 0 visits
     #simulation: simulate from created unvisited child to end with random actions and get reward
     #backpropagation: update stats of all nodes traveled down to simulation ... all visits +1 / pos. reward for all  nodes opposite of winner, neg. reward for all nodes of winner (pos reward for the states that are used to determine the best action for the winner ... which are the states in which the loser needs choose an action)
     #track states while selecting and expanding to update easy while backpropagating
+    print("state:")
+    print(state)
+    global f
 
-    childs=collect_possible_childs(state,player)
+    if f==0:
+        backtrack=s1D(state).copy()
+        backtrack=np.reshape(backtrack,(-1,backtrack.shape[0]))
+        f=1
+    else:
+        backtrack=addBacktrack(backtrack,state)
+    #change value sign ... 2nd player wants to select the best states, which are the best for player 1 
+    print("backtrack:")
+    print(backtrack)
+    if player==2:
+        data=change_value_sign(data)
     
-    unvisited=np.empty(1)
-    for i in range(action_space):
-        if childs[i,childs.shape1[1]-2]==0:
-            np.append(unvisited,i)
+    childs=collect_possible_childs(state,player,data)
+    print("childs:")
+    print(childs)
+    unvisited=check_if_leaf(state,player)
+    print("unvisited:")
+    print(unvisited)
 
-    sel_child=childs[unvisited[randint(0,unvisited.size)],0:childs.shape[1]-2]
-        
-    #if all(childs[,childs.shape[1]-2])==0
-    
-    #crv=current rollout value ... array with rollout values for every action
-    crv=playout(sel_child,player)
-        
-    return
+    if unvisited.size==0:
+
+        # select next child and remember it for backpropagation
+        next_state=get_best_child(childs)
+        if player==2:
+            data=change_value_sign(data)
+        data=mcts(data,next_state,(player%2)+1,backtrack)
+        return data
+    else:
+        sel_child=childs[int(unvisited[randint(0,unvisited.size-1)]),0:childs.shape[1]-2]
+        sel_child=np.reshape(sel_child,(-1,dimensionx))
+        print("sel_child:")
+        print(sel_child)
+        data=addState(data,sel_child)
+        backtrack=addBacktrack(backtrack,sel_child)
+        print("new backtrack:")
+        print(backtrack)
+        #cpv=current playout value
+        cpv=playout(sel_child,(player%2)+1)
+        print("cpv:")
+        print(cpv)
+        print("old data:")
+        print(data)
+        data=backprop(backtrack,data,cpv)
+        print("new data after backprop:")
+        print(data)
+    #change value sign back so that the standard is player 1
+
+        if player==2:
+            data=change_value_sign(data)
+        return data
+
+for i in range(9):
+    print("iteration:")
+    print(i)
+    data=mcts(data,ini,1,backtrack)
+    f=0
+    print("data:")
+    print(data)
 
 
-
-ini=np.zeros((6,7))
-print(playout(ini,1))
-
-data=np.zeros((1,ini.flatten().size+extra_data_per_state))
-print("childs")
-u=collect_possible_childs(ini,1)
-print(u)
-print(update(ini,1,1)[2])
-print(data)
-w,l,state1=update(ini,0,1)
-print("state1")
-state1x=state1.copy()
-print(state1)
-data1=addState(data,state1)
-print(data1)
-print("before")
-print(state1)
-w,l,state2=update(state1,1,2)
-print("after")
-print(state1)
-print("after2")
-print(state1x)
-data2=addState(data1,state2)
-print(data2)
-data3=data2
-data3[2,42]=7
-data3[1,42]=5
-data3[1,43]=2
-data3[2,43]=8
-
-print(state2)
-print("visits")
-print(visitcount(data3,state1x))
-print(visitcount(data3,state2))
-print(value(data3,state1x))
-print(value(data3,state2))
-print("break")
-g=np.delete(data2,[[42,43]],axis=1)
-print(g)
-print(data2.shape[0])
-print(data2[2,36])
-
-f=np.zeros((action_space,ini.size+2))
-print(state2)
-
-f[0,0:42]=state2.flatten()
-print(f[0,0:42])
-
-print(f)
+np.savetxt("test.txt",data,newline="")
