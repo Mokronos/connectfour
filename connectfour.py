@@ -178,7 +178,7 @@ def update(board,action,player):
     return w,1,boardx 
 def play():
     board=np.zeros((6,7))
-    w=0
+    w=3
     l=0
     pc=0 #playercounter
     player=1
@@ -187,21 +187,14 @@ def play():
         action=input("player "+str(player)+", choose action 0-6:")
         action=int(action)
         w,l,board=update(board,action,player)
+        print("action taken: "+str(action)+" by player: "+str(player))
         if l==1:
             pc+=1
             player=(pc%2)+1
-        print("action taken: "+str(action)+" by player: "+str(player))
         print(board)
 
-    if w==0:
-        print("draw - board is full")
-        
-    else:
-        print("player "+str(w)+" won")
 
-
-
-#play()
+play()
 
 
 
