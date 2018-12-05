@@ -40,10 +40,10 @@ def check_if_won(board):
                 c1=0
                 c2=0
             if c1==3:
-                print("player1 won")
+ #               print("player1 won")
                 return 1
             if c2==3:
-                print("player2 won")
+ #               print("player2 won")
                 return 2
 
     #horizontally
@@ -61,10 +61,10 @@ def check_if_won(board):
                 c1=0
                 c2=0
             if c1==3:
-                print("player1 won")
+ #               print("player1 won")
                 return 1
             if c2==3:
-                print("player2 won")
+ #               print("player2 won")
                 return 2
 
     #diagonally_1
@@ -85,10 +85,10 @@ def check_if_won(board):
                     c1=0
                     c2=0
                 if c1==3:
-                    print("player1 won")
+ #                   print("player1 won")
                     return 1
                 if c2==3:
-                    print("player2 won")
+ #                   print("player2 won")
                     return 2
                 cx+=1
                 cy+=1
@@ -111,10 +111,10 @@ def check_if_won(board):
                     c1=0
                     c2=0
                 if c1==3:
-                    print("player1 won")
+#                    print("player1 won")
                     return 1
                 if c2==3:
-                    print("player2 won")
+#                   print("player2 won")
                     return 2
                 cx-=1
                 cy+=1
@@ -123,7 +123,7 @@ def check_if_won(board):
         for j in range(board.shape[1]):
             if board[i,j]==0:
                 return 0
-    print("draw due to full board and no winner")
+#    print("draw due to full board and no winner")
     return 3
 
 
@@ -148,7 +148,9 @@ def s1D(state):
 
 def legal(board,action,player):
     if player_legal(board,player)==0:
-        
+     
+        return 0
+    if check_if_won(board) is not 0:
         return 0
     board=s1D(board).copy()
     if board[action]==0:
@@ -161,10 +163,55 @@ def move(board,action,player):
     return board
 
 def update(board,action,player):
+
     
-    board=board.copy()
+   # board=board.copy()
+   # if check_if_won(board) != 3:
+   #     w1=check_if_won(board)
+   #     w=3
+   #     if w1==3:
+   #         w=0
+   #     elif player==1:
+   #         if w1==1:
+   #             w=1
+   #         elif w1==2:
+   #             w=-1
+   #     elif player==2:
+   #         if w1==2:
+   #             w=1
+   #         elif w1==1:
+   #             w=-1
+
+   #     return w,0,board
+
+    
+    if check_if_won(board)is not 0:
+        #update returns reward the last player gets for the new state, when checking terminal node it needs to rechange player because only current state gets evaluated .. not a new state.
+        player=(player%2)+1
+        w1=check_if_won(board)
+        w=3
+        if w1==3:
+            w=0
+        elif player==1:
+            if w1==1:
+                w=1
+            elif w1==2:
+                w=-1
+        elif player==2:
+            if w1==2:
+                w=1
+            elif w1==1:
+                w=-1
+
+   
+        
+        
+        
+#        print("terminal boardstate")
+        return w,0,board
+
     if legal(board,action,player)==0:
-        print("wrong action")
+        #print("wrong action")
         return 3,0,board
     
     board=move(board,action,player)
@@ -209,7 +256,6 @@ def play():
 
 
 
-play()
 
 
 
