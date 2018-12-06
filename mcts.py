@@ -2,7 +2,7 @@
 import numpy as np
 from random import *
 from ttt import update
-np.set_printoptions(threshold=np.nan)
+np.set_printoptions(threshold=np.nan,precision=2)
 dimensionx=3
 dimensiony=3
 backtrack=[[]]
@@ -189,13 +189,25 @@ def change_value_sign(data):
 
 def get_best_child(childs):
     utc=np.zeros(childs.shape[0])
+    #parent visitcount = sum of child visitcounts
+    pv=0
     for i in range(childs.shape[0]):
-        utc[i]=childs[i,childs.shape[1]-1]/childs[i,childs.shape[1]-2]
+        pv+=childs[i,childs.shape[1]-2]
+    for i in range(childs.shape[0]):
+        utc[i]=(childs[i,childs.shape[1]-1]/childs[i,childs.shape[1]-2])+(2**0.5)*((np.log(pv)/childs[i,childs.shape[1]-2])**0.5)
     max_utc=np.argmax(utc)
     #print("max_utc:")
     #print(max_utc)
     return childs[max_utc,0:childs.shape[1]-2]
 
+def get_best_valued_child(data,state,player):
+    c=collect_possible_childs(state,player,data)
+    values=np.zeros((c.shape[0]))
+    for i in range(c.shape[0]):
+        values[i]=c[i,c.shape[1]-1]
+    bv=np.argmax(values)
+    print(c[bv])
+    
 
 def mcts(data,state,player,backtrack):
     
@@ -276,28 +288,29 @@ def mcts(data,state,player,backtrack):
     return data
 
 
-
-for i in range(8000):
-    print("iteration:")
-    print(i)
-    f=0
-    data=mcts(data,ini,1,backtrack)
-    print("data:")
+if __name__=="__main__":
+    for i in range(1000):
+        print("iteration:")
+        print(i)
+        f=0
+        data=mcts(data,ini,1,backtrack)
+        print("data:")
+        print(data)
+        print("data_shape[0]:")
+        print(data.shape[0])
+    np.savetxt("test.txt",data)
     print(data)
-    print("data_shape[0]:")
-    print(data.shape[0])
 
 
-
-print(data)
-
-#x=np.array([[1,1,1],[2,2,0],[0,0,0]])
+#print(data)
+#np.set_printoptions(precision=0)
+#x=np.array([[1.40000000,1,1],[200.999999999999999999,2,0],[0,0,0]])
 #print(x)
 #y=get_actions(x,2)
 #print(y)
 #z=update(x,0,1)[0]
 #print(z)
 
-
-
-np.savetxt("test.txt",data,newline="")
+#np.savetxt("test.txt",data)
+#d=np.loadtxt("test.txt")
+#print(d)
