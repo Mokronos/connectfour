@@ -1,6 +1,6 @@
 import numpy as np
 
-ini=np.zeros((3,3))
+ini=np.zeros((2,2))
 action_space=ini.size
 dimensionx=ini.shape[1]
 dimensiony=ini.shape[0]
@@ -25,47 +25,48 @@ def player_legal(board,player):
 
 def check_if_won(board):
     board=s2D(board).copy()
+    condition=2
     #vertically
-    for i in range(board.shape[0]):
-        c1=0
-        c2=0
-        for j in range(board.shape[1]):
-            if board[i,j]==1:
-                c1+=1
-                c2=0
-            if board[i,j]==2:
-                c1=0
-                c2+=1
-            if board[i,j]==0:
-                c1=0
-                c2=0
-            if c1==3:
- #               print("player1 won")
-                return 1
-            if c2==3:
- #               print("player2 won")
-                return 2
+   # for i in range(board.shape[0]):
+   #     c1=0
+   #     c2=0
+   #     for j in range(board.shape[1]):
+   #         if board[i,j]==1:
+   #             c1+=1
+   #             c2=0
+   #         if board[i,j]==2:
+   #             c1=0
+   #             c2+=1
+   #         if board[i,j]==0:
+   #             c1=0
+   #             c2=0
+   #         if c1==condition:
+ # #              print("player1 won")
+   #             return 1
+   #         if c2==condition:
+ # #              print("player2 won")
+   #             return 2
 
-    #horizontally
-    for j in range(board.shape[1]):
-        c1=0
-        c2=0
-        for i in range(board.shape[0]):
-            if board[i,j]==1:
-                c1+=1
-                c2=0
-            if board[i,j]==2:
-                c1=0
-                c2+=1
-            if board[i,j]==0:
-                c1=0
-                c2=0
-            if c1==3:
- #               print("player1 won")
-                return 1
-            if c2==3:
- #               print("player2 won")
-                return 2
+   # #horizontally
+   # for j in range(board.shape[1]):
+   #     c1=0
+   #     c2=0
+   #     for i in range(board.shape[0]):
+   #         if board[i,j]==1:
+   #             c1+=1
+   #             c2=0
+   #         if board[i,j]==2:
+   #             c1=0
+   #             c2+=1
+   #         if board[i,j]==0:
+   #             c1=0
+   #             c2=0
+   #         if c1==condition:
+ # #              print("player1 won")
+   #             return 1
+   #         if c2==condition:
+ # #              print("player2 won")
+   #             return 2
 
     #diagonally_1
     for i in range(board.shape[0]):
@@ -84,10 +85,10 @@ def check_if_won(board):
                 if board[cy,cx]==0:
                     c1=0
                     c2=0
-                if c1==3:
+                if c1==condition:
  #                   print("player1 won")
                     return 1
-                if c2==3:
+                if c2==condition:
  #                   print("player2 won")
                     return 2
                 cx+=1
@@ -110,10 +111,10 @@ def check_if_won(board):
                 if board[cy,cx]==0:
                     c1=0
                     c2=0
-                if c1==3:
+                if c1==condition:
 #                    print("player1 won")
                     return 1
-                if c2==3:
+                if c2==condition:
 #                   print("player2 won")
                     return 2
                 cx-=1
@@ -236,25 +237,24 @@ def update(board,action,player):
     #return win,legal,board
 
 def play():
-    board=np.zeros((3,3))
+    board=np.zeros((2,2))
     w=3
     l=0
     pc=0 #playercounter
     player=1
     print(board)
     while(w==3):
-        action=input("player "+str(player)+", choose action 0-6:")
+        action=input("player "+str(player)+", choose action")
         action=int(action)
         w,l,board=update(board,action,player)
-        
+        print("w: %d" % (w))
+        print("l: %d" % (l))
         if l==1:
             print("action taken: "+str(action)+" by player: "+str(player))
             pc+=1
             player=(pc%2)+1
         
         print(s2D(board))
-
-
 
 
 

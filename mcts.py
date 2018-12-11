@@ -3,14 +3,14 @@ import numpy as np
 from random import *
 from ttt import update
 np.set_printoptions(threshold=np.nan,precision=2)
-dimensionx=3
-dimensiony=3
+dimensionx=2
+dimensiony=2
 backtrack=[[]]
 extra_data_per_state=2
-ini=np.zeros((3,3))
+ini=np.zeros((2,2))
 data=np.zeros((1,ini.flatten().size+extra_data_per_state))
 f=0 #reset after every iteration .. to signal that this is first state
-action_space=9
+action_space=4
 x=np.zeros((1,dimensiony*dimensionx+extra_data_per_state))
 
 
@@ -120,11 +120,11 @@ def playout(state,player):
     
     #playout went from the child of the leaf and started with opposite player to the player of the leaf ... if winning player is player of leaf, the reward should be positive .. we change player twice (1. in call of function, 2. after w changed in while it gets changed 1 last time) so if the winning player == p .. pos reward
 
-    if player==p:
-        return w
-        
-    return -w
-
+   # if player==p:
+   #     return w
+   #     
+   # return -w
+    return w
 
 
 
@@ -217,7 +217,14 @@ def mcts(data,state,player,backtrack):
     #track states while selecting and expanding to update easy while backpropagating
     #print("state:")
     #print(state)
-    
+    #plan:
+    #inputstate player1s turn:
+    #---select state but reverse sign of data when action for player 2 needs to be selected to select highest value(is lowest value in main data)
+
+
+
+
+
     global f
 
     
@@ -246,8 +253,11 @@ def mcts(data,state,player,backtrack):
     #if current state is terminal state, no expansion/simulation needed, get value of terminal state and backprop
 
     if get_actions(state,player).size==0:
+        print("hello")
+
         cpv=update(state,None,player)[0]
-        data=backprop(backtrack,data,cpv)
+        print(cpv)
+        data=backprop(backtrack,data,-cpv)
         return data
 
 
@@ -286,9 +296,9 @@ def mcts(data,state,player,backtrack):
             data=change_value_sign(data)
     return data
 
-
+#u=np.array([[1,2],[0,0]])
 if __name__=="__main__":
-    for i in range(10000):
+    for i in range(1000):
         print("iteration:")
         print(i)
         f=0
@@ -299,7 +309,7 @@ if __name__=="__main__":
         print(data.shape[0])
     np.savetxt("test.txt",data)
     print(data)
-
+#    print(change_value_sign(data))
 
 #print(data)
 #np.set_printoptions(precision=0)
