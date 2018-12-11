@@ -206,8 +206,7 @@ def get_best_valued_child(data,state,player):
     for i in range(c.shape[0]):
         values[i]=c[i,c.shape[1]-1]
     bv=np.argmax(values)
-    print(c[bv])
-    
+    return c[bv]
 
 def mcts(data,state,player,backtrack):
     
@@ -289,7 +288,7 @@ def mcts(data,state,player,backtrack):
 
 
 if __name__=="__main__":
-    for i in range(1000):
+    for i in range(10000):
         print("iteration:")
         print(i)
         f=0
