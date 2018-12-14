@@ -308,8 +308,8 @@ def mcts(data,state,player,backtrack):
 #u=np.array([[1,2],[0,0]])
     
 if __name__=="__main__":
-    n=filename()
-    #data=np.loadtxt("test(1).txt")
+    #n=filename()
+    data=np.loadtxt("test(10).txt")
     oldt=0
     print(data)
     for i in range(10000):
@@ -322,7 +322,7 @@ if __name__=="__main__":
         #print(data)
         if i%100==0:
 
-            np.savetxt(n,data)
+            np.savetxt("test(10).txt",data)
         #print("data_shape[0]:")
         #print(data.shape[0])
         print("est. time for next 100 iterations:")

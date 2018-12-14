@@ -5,10 +5,10 @@ from mcts import s2D
 np.set_printoptions(threshold=np.nan,suppress=True)
 
 x=np.loadtxt("test(10).txt")
-ini=np.array([[1,2,0],[2,1,0],[1,0,2]])
+ini=np.array([[2,0,2],[2,0,1],[1,0,1]])
 state=np.zeros((6,7))
 ini4=np.array([[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[1,1,1,0,2,2,2]])
-
+print(x.shape[0])
 
 player=1
 print(ini)
@@ -23,5 +23,4 @@ def test(x,state,player):
 
 #test(x,ini,player)
 #test(x,state,player)
-
 print(s2D(get_best_valued_child(x,ini,1)[0:(get_best_valued_child(x,ini,1)).size-2]))
