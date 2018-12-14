@@ -1,9 +1,12 @@
 import numpy as np
 
-ini=np.zeros((2,2))
+ini=np.zeros((3,3))
 action_space=ini.size
 dimensionx=ini.shape[1]
 dimensiony=ini.shape[0]
+
+
+
 def player_legal(board,player):
     board=s1D(board).copy()
     c1=0
@@ -25,48 +28,48 @@ def player_legal(board,player):
 
 def check_if_won(board):
     board=s2D(board).copy()
-    condition=2
+    condition=3
     #vertically
-   # for i in range(board.shape[0]):
-   #     c1=0
-   #     c2=0
-   #     for j in range(board.shape[1]):
-   #         if board[i,j]==1:
-   #             c1+=1
-   #             c2=0
-   #         if board[i,j]==2:
-   #             c1=0
-   #             c2+=1
-   #         if board[i,j]==0:
-   #             c1=0
-   #             c2=0
-   #         if c1==condition:
- # #              print("player1 won")
-   #             return 1
-   #         if c2==condition:
- # #              print("player2 won")
-   #             return 2
+    for i in range(board.shape[0]):
+        c1=0
+        c2=0
+        for j in range(board.shape[1]):
+            if board[i,j]==1:
+                c1+=1
+                c2=0
+            if board[i,j]==2:
+                c1=0
+                c2+=1
+            if board[i,j]==0:
+                c1=0
+                c2=0
+            if c1==condition:
+ #               print("player1 won")
+                return 1
+            if c2==condition:
+ #               print("player2 won")
+                return 2
 
-   # #horizontally
-   # for j in range(board.shape[1]):
-   #     c1=0
-   #     c2=0
-   #     for i in range(board.shape[0]):
-   #         if board[i,j]==1:
-   #             c1+=1
-   #             c2=0
-   #         if board[i,j]==2:
-   #             c1=0
-   #             c2+=1
-   #         if board[i,j]==0:
-   #             c1=0
-   #             c2=0
-   #         if c1==condition:
- # #              print("player1 won")
-   #             return 1
-   #         if c2==condition:
- # #              print("player2 won")
-   #             return 2
+    #horizontally
+    for j in range(board.shape[1]):
+        c1=0
+        c2=0
+        for i in range(board.shape[0]):
+            if board[i,j]==1:
+                c1+=1
+                c2=0
+            if board[i,j]==2:
+                c1=0
+                c2+=1
+            if board[i,j]==0:
+                c1=0
+                c2=0
+            if c1==condition:
+ #               print("player1 won")
+                return 1
+            if c2==condition:
+ #               print("player2 won")
+                return 2
 
     #diagonally_1
     for i in range(board.shape[0]):
@@ -188,26 +191,15 @@ def update(board,action,player):
     
     if check_if_won(board)is not 0:
         #update returns reward the last player gets for the new state, when checking terminal node it needs to rechange player because only current state gets evaluated .. not a new state.
-        player=(player%2)+1
         w1=check_if_won(board)
         w=3
         if w1==3:
             w=0
-        elif player==1:
-            if w1==1:
-                w=1
-            elif w1==2:
-                w=-1
-        elif player==2:
-            if w1==2:
-                w=1
-            elif w1==1:
-                w=-1
+        elif w1==1:
+            w=1
+        elif w1==2:
+            w=-1
 
-   
-        
-        
-        
 #        print("terminal boardstate")
         return w,0,board
 
@@ -221,23 +213,17 @@ def update(board,action,player):
     w=3
     if w1==3:
         w=0
-    elif player==1:
-        if w1==1:
-            w=1
-        elif w1==2:
-            w=-1
-    elif player==2:
-        if w1==2:
-            w=1
-        elif w1==1:
-            w=-1
+    elif w1==1:
+        w=1
+    elif w1==2:
+        w=-1
 
     return w,1,board
 
     #return win,legal,board
 
 def play():
-    board=np.zeros((2,2))
+    board=np.zeros((3,3))
     w=3
     l=0
     pc=0 #playercounter
@@ -258,7 +244,9 @@ def play():
 
 
 
+#x=np.array([[0,1],[1,2]])
 
+#print(update(x,None,2))
 
 
 

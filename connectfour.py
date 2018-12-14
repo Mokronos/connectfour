@@ -2,17 +2,17 @@ import numpy as np
 
 def legal(board,action,player):
         if not 0<=(action)<=6:
-            print("action not in action space")
+#            print("action not in action space")
     
             return 0
         if not 1<=player<=2:
-            print("not a viable player")
+#            print("not a viable player")
             return 0
         if not board.shape==(6,7):
-            print("wrong board dimensions")
+#            print("wrong board dimensions")
             return 0
         if board[0,action]!=0:
-            print("wrong action_column full")
+#            print("wrong action_column full")
             return 0
         c1=0
         c2=0
@@ -25,13 +25,13 @@ def legal(board,action,player):
         
         
         if (c1==c2) and (player==2):
-            print("wrong player, it is player1's turn")
+#            print("wrong player, it is player1's turn")
             return 0
         if (c1<c2):
-            print("player2 went twice or too often")
+#            print("player2 went twice or too often")
             return 0
         if (c1>c2) and (player==1):
-            print("wrong player, it is player2's turn")
+#            print("wrong player, it is player2's turn")
             return 0
 #        print("legal move")
         return 1
@@ -52,10 +52,10 @@ def check_if_won(board):
                 c1=0
                 c2=0
             if c1==4:
-                print("player1 won")
+#                print("player1 won")
                 return 1
             if c2==4:
-                print("player2 won")
+#                print("player2 won")
                 return 2
 
     #horizontally
@@ -73,10 +73,10 @@ def check_if_won(board):
                 c1=0
                 c2=0
             if c1==4:
-                print("player1 won")
+#                print("player1 won")
                 return 1
             if c2==4:
-                print("player2 won")
+#                print("player2 won")
                 return 2
 
     #diagonally_1
@@ -97,10 +97,10 @@ def check_if_won(board):
                     c1=0
                     c2=0
                 if c1==4:
-                    print("player1 won")
+#                    print("player1 won")
                     return 1
                 if c2==4:
-                    print("player2 won")
+#                    print("player2 won")
                     return 2
                 cx+=1
                 cy+=1
@@ -123,10 +123,10 @@ def check_if_won(board):
                     c1=0
                     c2=0
                 if c1==4:
-                    print("player1 won")
+#                    print("player1 won")
                     return 1
                 if c2==4:
-                    print("player2 won")
+#                    print("player2 won")
                     return 2
                 cx-=1
                 cy+=1
@@ -135,7 +135,7 @@ def check_if_won(board):
         for j in range(board.shape[1]):
             if board[i,j]==0:
                 return 0
-    print("draw due to full board and no winner")
+    #print("draw due to full board and no winner")
     return 3
 
 def move(board,action,player):
@@ -152,8 +152,20 @@ def move(board,action,player):
 
 def update(board,action,player):
     boardx=board.copy()
+    if check_if_won(boardx) is not 0:
+        
+        w1=check_if_won(boardx)
+        w=3
+        if w1==3:
+            w=0
+        elif w1==1:
+            w=1
+        elif w1==2:
+            w=-1
+        return w,0,boardx
+
     if legal(boardx,action,player)==0:
-        print("not a legal move")
+        #print("not a legal move")
         return 3,0,boardx
     
     boardx=move(boardx,action,player)
@@ -162,16 +174,10 @@ def update(board,action,player):
     w=3
     if w1==3:
         w=0
-    elif player==1:
-        if w1==1:
-            w=1
-        elif w1==2:
-            w=-1
-    elif player==2:
-        if w1==2:
-            w=1
-        elif w1==1:
-            w=-1
+    elif w1==1:
+        w=1
+    elif w1==2:
+        w=-1
 
 
     #return win,legal,board
@@ -194,7 +200,7 @@ def play():
         print(board)
 
 
-play()
+#play()
 
 
 

@@ -1,16 +1,17 @@
-
+from pathlib import Path
 import numpy as np
 from random import *
 from ttt import update
-np.set_printoptions(threshold=np.nan,precision=2)
-dimensionx=2
-dimensiony=2
+import time
+np.set_printoptions(threshold=np.nan,precision=2,suppress=True)
+dimensionx=3
+dimensiony=3
 backtrack=[[]]
 extra_data_per_state=2
-ini=np.zeros((2,2))
+ini=np.zeros((3,3))
 data=np.zeros((1,ini.flatten().size+extra_data_per_state))
 f=0 #reset after every iteration .. to signal that this is first state
-action_space=4
+action_space=9
 x=np.zeros((1,dimensiony*dimensionx+extra_data_per_state))
 
 
@@ -143,15 +144,13 @@ def check_if_leaf(state,player):
 
 def backprop(backtrack,data,value):
 
-    
-
     for i in range(backtrack.shape[0]):
         data=up_visitcount(data,backtrack[i])
         
         for j in range(data.shape[0]):
             if all(backtrack[i,0:backtrack.shape[1]] == data[j,0:data.shape[1]-2]):
                data=up_value(data,backtrack[i],value)
-
+    
     return data
 
 #transform state to 2D array
@@ -208,6 +207,16 @@ def get_best_valued_child(data,state,player):
     bv=np.argmax(values)
     return c[bv]
 
+def filename():
+    c=0
+    n=Path("test.txt")
+    while n.is_file():
+        c+=1
+        n=Path("test(%d).txt" % c)
+        
+    return n
+
+
 def mcts(data,state,player,backtrack):
     
     #selection: select best states according to policy(rewards/visits) until state has 1 or more unvisited children
@@ -221,12 +230,11 @@ def mcts(data,state,player,backtrack):
     #inputstate player1s turn:
     #---select state but reverse sign of data when action for player 2 needs to be selected to select highest value(is lowest value in main data)
 
-
-
+    
+    
 
 
     global f
-
     
     #check if this is the first recursive/if there is a backtrack
     #first recursive: make the current state the backtrack array and reshape it to accept more states
@@ -244,20 +252,23 @@ def mcts(data,state,player,backtrack):
         data=change_value_sign(data)
     
     childs=collect_possible_childs(state,player,data)
+    
+    if player==2:
+        data=change_value_sign(data)
+    
     #print("childs:")
     #print(childs)
     unvisited=check_if_leaf(state,player)
     #print("unvisited:")
     #print(unvisited)
-    
+    #reverse sign only when selecting ... dont reverse it for backprop it only matters what player won not what player started the backtrack
     #if current state is terminal state, no expansion/simulation needed, get value of terminal state and backprop
 
     if get_actions(state,player).size==0:
-        print("hello")
-
+        state=s2D(state)
         cpv=update(state,None,player)[0]
-        print(cpv)
-        data=backprop(backtrack,data,-cpv)
+
+        data=backprop(backtrack,data,cpv)
         return data
 
 
@@ -267,8 +278,6 @@ def mcts(data,state,player,backtrack):
         next_state=get_best_child(childs)
         #print("next_state")
         #print(next_state)
-        if player==2:
-            data=change_value_sign(data)
         data=mcts(data,next_state,(player%2)+1,backtrack)
         return data
     else:
@@ -283,6 +292,7 @@ def mcts(data,state,player,backtrack):
         #print(backtrack)
         #cpv=current playout value
         cpv=playout(sel_child,(player%2)+1)
+        
         #print("cpv:")
         #print(cpv)
         #print("old data:")
@@ -292,23 +302,33 @@ def mcts(data,state,player,backtrack):
         #print(data)
     #change value sign back so that the standard is player 1
 
-        if player==2:
-            data=change_value_sign(data)
+        
     return data
 
 #u=np.array([[1,2],[0,0]])
+    
 if __name__=="__main__":
-    for i in range(1000):
+    n=filename()
+    #data=np.loadtxt("test(1).txt")
+    oldt=0
+    print(data)
+    for i in range(10000):
+        oldt=time.time()
         print("iteration:")
         print(i)
         f=0
         data=mcts(data,ini,1,backtrack)
-        print("data:")
-        print(data)
-        print("data_shape[0]:")
-        print(data.shape[0])
-    np.savetxt("test.txt",data)
+        #print("data:")
+        #print(data)
+        if i%100==0:
+
+            np.savetxt(n,data)
+        #print("data_shape[0]:")
+        #print(data.shape[0])
+        print("est. time for next 100 iterations:")
+        print((time.time()-oldt)*100)
     print(data)
+
 #    print(change_value_sign(data))
 
 #print(data)
