@@ -5,7 +5,7 @@ from mcts import s2D
 np.set_printoptions(threshold=np.nan,suppress=True)
 
 x=np.loadtxt("test(10).txt")
-ini=np.array([[2,0,2],[2,0,1],[1,0,1]])
+ini=np.array([[0,2,2],[2,1,0],[1,1,0]])
 state=np.zeros((6,7))
 ini4=np.array([[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[1,1,1,0,2,2,2]])
 print(x.shape[0])
