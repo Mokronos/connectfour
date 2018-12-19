@@ -4,14 +4,15 @@ from mcts import change_value_sign
 from mcts import s2D
 np.set_printoptions(threshold=np.nan,suppress=True)
 
-x=np.loadtxt("test(10).txt")
+x=np.loadtxt("test(9).txt")
 ini=np.array([[0,2,2],[2,1,0],[1,1,0]])
 state=np.zeros((6,7))
-ini4=np.array([[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[1,1,1,0,2,2,2]])
-print(x.shape[0])
+ini4=np.array([[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,1,0,0,0,0,0],[0,1,0,0,0,0,0],[0,1,2,2,0,2,0]])
+s=ini4
+#print(x.shape[0])
 
 player=1
-print(ini)
+print(s)
 #print(ini4)
 def test(x,state,player):
     for i in range(9):
@@ -23,4 +24,5 @@ def test(x,state,player):
 
 #test(x,ini,player)
 #test(x,state,player)
-print(s2D(get_best_valued_child(x,ini,1)[0:(get_best_valued_child(x,ini,1)).size-2]))
+print(s2D(get_best_valued_child(x,s,1)[0:(get_best_valued_child(x,s,1)).size-2]))
+

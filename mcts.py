@@ -1,19 +1,17 @@
 from pathlib import Path
 import numpy as np
 from random import *
-from ttt import update
+from connectfour import update
 import time
 np.set_printoptions(threshold=np.nan,precision=2,suppress=True)
-dimensionx=3
-dimensiony=3
-backtrack=[[]]
+dimensionx=7
+dimensiony=6
 extra_data_per_state=2
-ini=np.zeros((3,3))
+ini=np.zeros((6,7))
 data=np.zeros((1,ini.flatten().size+extra_data_per_state))
-f=0 #reset after every iteration .. to signal that this is first state
-action_space=9
+ #reset after every iteration .. to signal that this is first state
+action_space=7
 x=np.zeros((1,dimensiony*dimensionx+extra_data_per_state))
-
 
 #w,l,board=update(board,0,1)
 
@@ -50,7 +48,7 @@ def addBacktrack(data,state):
 #returns visitcount for given state
 def visitcount(data,state):
     state=s1D(state)
-    datax=np.delete(data,[[data.shape[1]-1,data.shape[1]-2]],axis=1)
+    datax=data[0:data.shape[0],0:data.shape[1]-2]
     for i in range(datax.shape[0]):
         if(np.array_equal(datax[i],state)):
             return data[i,data.shape[1]-2]
@@ -59,7 +57,7 @@ def visitcount(data,state):
 #returns value for given state
 def value(data,state):
     state=s1D(state)
-    datax=np.delete(data,[[data.shape[1]-1,data.shape[1]-2]],axis=1)
+    datax=data[0:data.shape[0],0:data.shape[1]-2]
     for i in range(datax.shape[0]):
         if(np.array_equal(datax[i],state)):
             return data[i,data.shape[1]-1]
@@ -68,7 +66,7 @@ def value(data,state):
 #increases visitcount by 1 for given state in given data
 def up_visitcount(data,state):
     state=s1D(state)
-    datax=np.delete(data,[[data.shape[1]-1,data.shape[1]-2]],axis=1)
+    datax=data[0:data.shape[0],0:data.shape[1]-2]
     for i in range(datax.shape[0]):
         if(np.array_equal(datax[i],state)):
             data[i,data.shape[1]-2]+=1
@@ -77,7 +75,7 @@ def up_visitcount(data,state):
 #increases value by given value for given state in given data
 def up_value(data,state,value):
     state=s1D(state)
-    datax=np.delete(data,[[data.shape[1]-1,data.shape[1]-2]],axis=1)
+    datax=data[0:data.shape[0],0:data.shape[1]-2]
     for i in range(datax.shape[0]):
         if(np.array_equal(datax[i],state)):
             data[i,data.shape[1]-1]=data[i,data.shape[1]-1]+value
@@ -89,7 +87,6 @@ def collect_possible_childs(state,player,data):
     state=s2D(state)
     x=get_actions(state,player)
     childs=np.zeros((x.size,state.size+2))
-    
     for i in range(x.size):
         next_state=update(state,x[i],player)[2]
         if not (np.array_equal(next_state,state)):
@@ -217,7 +214,7 @@ def filename():
     return n
 
 
-def mcts(data,state,player,backtrack):
+def mcts(data,state,player,backtrack,rem):
     
     #selection: select best states according to policy(rewards/visits) until state has 1 or more unvisited children
     #expand: select 1 random unvisited child and add it to tree with 0 value, 0 visits
@@ -232,16 +229,13 @@ def mcts(data,state,player,backtrack):
 
     
     
-
-
-    global f
     
     #check if this is the first recursive/if there is a backtrack
     #first recursive: make the current state the backtrack array and reshape it to accept more states
-    if f==0:
+    if rem==0:
         backtrack=s1D(state).copy()
         backtrack=np.reshape(backtrack,(-1,backtrack.shape[0]))
-        f=1
+        rem=1
     #not first recursive: add current state to backtrack array
     else:
         backtrack=addBacktrack(backtrack,state)
@@ -269,7 +263,7 @@ def mcts(data,state,player,backtrack):
         cpv=update(state,None,player)[0]
 
         data=backprop(backtrack,data,cpv)
-        return data
+        return data,backtrack,rem
 
 
     if unvisited.size==0:
@@ -278,8 +272,8 @@ def mcts(data,state,player,backtrack):
         next_state=get_best_child(childs)
         #print("next_state")
         #print(next_state)
-        data=mcts(data,next_state,(player%2)+1,backtrack)
-        return data
+        data,backtrack,rem=mcts(data,next_state,(player%2)+1,backtrack,rem)
+        return data,backtrack,rem
     else:
          
         sel_child=childs[int(unvisited[randint(0,unvisited.size-1)]),0:childs.shape[1]-2]
@@ -303,26 +297,31 @@ def mcts(data,state,player,backtrack):
     #change value sign back so that the standard is player 1
 
         
-    return data
+    return data,backtrack,rem
 
 #u=np.array([[1,2],[0,0]])
-    
+ts=np.array([[0,2,2],[2,1,0],[1,1,0]])
+tc=np.array([[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,1,0,0,0,0,0],[0,1,0,0,0,0,0],[0,1,2,2,0,2,0]])
+
+
 if __name__=="__main__":
     #n=filename()
-    data=np.loadtxt("test(10).txt")
+    backtrack=[[]]
+    data=np.loadtxt("test(9).txt")
     oldt=0
+    f=0
     print(data)
     for i in range(10000):
         oldt=time.time()
         print("iteration:")
         print(i)
         f=0
-        data=mcts(data,ini,1,backtrack)
+        data,backtrack,f=mcts(data,tc,1,backtrack,f)
         #print("data:")
         #print(data)
-        if i%100==0:
+        if i%10==0:
 
-            np.savetxt("test(10).txt",data)
+            np.savetxt("test(9).txt",data)
         #print("data_shape[0]:")
         #print(data.shape[0])
         print("est. time for next 100 iterations:")
